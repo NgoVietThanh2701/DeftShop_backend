@@ -1,4 +1,4 @@
-import Product from '../models/admin/ProductModel';
+import Product from '../../models/ProductModel';
 
 export const getProducts = (req, res) => {
 

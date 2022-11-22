@@ -1,10 +1,10 @@
-import User from '../models/admin/UserModel';
+import User from '../../models/UserModel';
 import argon2 from "argon2";
 
 export const getUsers = async (req, res) => {
    try {
       const users = await User.findAll({
-         attributes: ['uuid', 'name', 'phone', 'email', 'role', 'createdAt']
+         attributes: ['uuid', 'name', 'phone', 'email', 'createdAt']
       });
       res.status(200).json(users);
    } catch (error) {
@@ -15,7 +15,7 @@ export const getUsers = async (req, res) => {
 export const getUserById = async (req, res) => {
    try {
       const user = await User.findOne({
-         attributes: ['uuid', 'name', 'phone', 'email', 'role', 'createdAt'],
+         attributes: ['uuid', 'name', 'phone', 'email', 'createdAt'],
          where: {
             uuid: req.params.id
          }
@@ -27,27 +27,6 @@ export const getUserById = async (req, res) => {
    }
 }
 
-export const createUser = async (req, res) => {
-   const { name, phone, email, password, confPassword, role } = req.body;
-   if (password !== confPassword)
-      return res.status(400).json({ msg: "password not matched" });
-   if (phone.length !== 10)
-      return res.status(400).json({ msg: "phone must is 10 number" })
-   const hashPassword = await argon2.hash(password);
-   try {
-      await User.create({
-         name: name,
-         phone: phone,
-         email: email,
-         password: hashPassword,
-         role: role
-      });
-      res.status(201).json({ msg: "create successfully" })
-   } catch (error) {
-      res.status(400).json({ msg: error.message })
-   }
-}
-
 export const updatedUser = async (req, res) => {
    const user = await User.findOne({
       where: {
@@ -55,7 +34,7 @@ export const updatedUser = async (req, res) => {
       }
    });
    if (!user) return res.status(404).json({ msg: "user not found" });
-   const { name, phone, email, password, confPassword, role } = req.body;
+   const { name, phone, email, password, confPassword } = req.body;
    let hashPassword;
    if (password === "" || password === null) {
       hashPassword = user.password;

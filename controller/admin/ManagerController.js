@@ -1,4 +1,4 @@
-import Manager from '../models/admin/ManagerModel';
+import Manager from '../../models/ManagerModel';
 import argon2 from 'argon2';
 
 export const getManagers = async (req, res) => {

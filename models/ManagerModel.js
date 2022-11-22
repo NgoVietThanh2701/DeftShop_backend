@@ -1,10 +1,9 @@
 import { Sequelize } from "sequelize";
-import db from "../../config/Database";
-import Manager from '../admin/ManagerModel'
+import db from '../config/Database.js';
 
 const { DataTypes } = Sequelize;
 
-const Category = db.define('category', {
+const Manager = db.define('manager', {
    uuid: {
       type: DataTypes.STRING,
       defaultValue: DataTypes.UUIDV4,
@@ -21,19 +20,30 @@ const Category = db.define('category', {
          len: [3, 80]
       }
    },
-   managerId: {
-      type: DataTypes.INTEGER,
+   email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+         notEmpty: true,
+         isEmail: true
+      }
+   },
+   password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+         notEmpty: true,
+      }
+   },
+   role: {
+      type: DataTypes.STRING,
       allowNull: false,
       validate: {
          notEmpty: true,
       }
    }
-
 }, {
    freezeTableName: true
 });
 
-Manager.hasMany(Category);
-Category.belongsTo(Manager, { foreignKey: 'managerId' })
-
-export default Category
+export default Manager

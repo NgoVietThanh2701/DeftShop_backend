@@ -1,9 +1,10 @@
 import { Sequelize } from "sequelize";
-import db from '../../config/Database.js';
+import db from "../config/Database";
+import Manager from '../models/ManagerModel'
 
 const { DataTypes } = Sequelize;
 
-const Manager = db.define('manager', {
+const Category = db.define('category', {
    uuid: {
       type: DataTypes.STRING,
       defaultValue: DataTypes.UUIDV4,
@@ -20,30 +21,23 @@ const Manager = db.define('manager', {
          len: [3, 80]
       }
    },
-   email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-         notEmpty: true,
-         isEmail: true
-      }
-   },
-   password: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-         notEmpty: true,
-      }
-   },
-   role: {
-      type: DataTypes.STRING,
+   managerId: {
+      type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
          notEmpty: true,
       }
    }
+
 }, {
    freezeTableName: true
 });
 
-export default Manager
+// (async () => {
+//    await db.sync();
+// })();
+
+Manager.hasMany(Category);
+Category.belongsTo(Manager, { foreignKey: 'managerId' })
+
+export default Category

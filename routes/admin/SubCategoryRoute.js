@@ -5,14 +5,14 @@ import {
    createSubCategory,
    updatedSubCategory,
    deleteSubCategory
-} from '../../controller/SubCategoryController';
+} from '../../controller/admin/SubCategoryController';
 
 const router = express.Router();
 
 router.get('/category/:id', getSubCategories);
-router.get('/category/detail/:id', getSubCategoryById);
-router.post('/category/detail', createSubCategory);
-router.patch('/category/detail/:id', updatedSubCategory);
-router.delete('/category/detail/:id', deleteSubCategory);
+router.get('/category/:id', getSubCategoryById);
+router.post('/category/', createSubCategory);
+router.patch('/category/:id', updatedSubCategory);
+router.delete('/category/:id', deleteSubCategory);
 
 export default router;

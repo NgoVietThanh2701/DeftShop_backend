@@ -1,12 +1,10 @@
 import { Sequelize } from "sequelize";
-import db from "../../config/Database";
-import Category from "./CategoryModel";
-import User from '../admin/UserModel';
-import Manager from '../admin/ManagerModel';
+import db from '../config/Database.js';
+import User from "./UserModel.js";
 
 const { DataTypes } = Sequelize;
 
-const SubCategory = db.define('sub_category', {
+const Notify = db.define('notify', {
    uuid: {
       type: DataTypes.STRING,
       defaultValue: DataTypes.UUIDV4,
@@ -15,16 +13,22 @@ const SubCategory = db.define('sub_category', {
          notEmpty: true
       }
    },
-   name: {
+   type: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
          notEmpty: true,
-         len: [3, 80]
       }
    },
-   categoryId: {
-      type: DataTypes.INTEGER,
+   title: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+         notEmpty: true
+      }
+   },
+   content: {
+      type: DataTypes.STRING,
       allowNull: false,
       validate: {
          notEmpty: true,
@@ -36,16 +40,16 @@ const SubCategory = db.define('sub_category', {
       validate: {
          notEmpty: true,
       }
-   }
-
+   },
 }, {
    freezeTableName: true
 });
 
-Category.hasMany(SubCategory);
-SubCategory.belongsTo(Category, { foreignKey: 'categoryId' });
+User.hasMany(Notify);
+Notify.belongsTo(User, { foreignKey: 'userId' });
 
-User.hasMany(SubCategory);
-SubCategory.belongsTo(User, { foreignKey: 'userId' });
+// (async () => {
+//    await db.sync();
+// })();
 
-export default SubCategory
+export default Notify

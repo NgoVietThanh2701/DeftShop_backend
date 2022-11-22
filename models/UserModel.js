@@ -1,9 +1,10 @@
 import { Sequelize } from "sequelize";
-import db from "../../config/Database";
+import db from "../config/Database";
+import Manager from "./ManagerModel";
 
 const { DataTypes } = Sequelize;
 
-const Users = db.define('users', {
+const User = db.define('user', {
    uuid: {
       type: DataTypes.STRING,
       defaultValue: DataTypes.UUIDV4,
@@ -43,15 +44,14 @@ const Users = db.define('users', {
          notEmpty: true,
       }
    },
-   role: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-         notEmpty: true,
-      }
-   }
 }, {
    freezeTableName: true
 });
 
-export default Users
+// automatic model to table db
+// (async () => {
+//    await db.sync();
+// })();
+
+
+export default User

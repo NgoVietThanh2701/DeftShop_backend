@@ -1,4 +1,4 @@
-import SubCategoryModel from '../models/admin/SubCategoryModel';
+import SubCategory from '../../models/SubCategoryModel';
 
 export const getSubCategories = (req, res) => {
 

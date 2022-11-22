@@ -1,6 +1,6 @@
 import { Sequelize } from "sequelize";
 import FileUpload from "express-fileupload";
-import db from "../../config/Database";
+import db from "../config/Database";
 import SubCategory from "./SubCategoryModel";
 import Category from "./CategoryModel";
 import User from "./UserModel";

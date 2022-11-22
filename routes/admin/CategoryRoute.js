@@ -5,14 +5,14 @@ import {
    createCategory,
    updatedCategory,
    deleteCategory
-} from '../../controller/CategoryController';
-
+} from '../../controller/admin/CategoryController';
+import { verifyLoginAdmin, verifyManagerCategory } from "../../middleware/admin/AuthManager";
 const router = express.Router();
 
-router.get('/category', getCategories);
-router.get('/category/:id', getCategoryById);
-router.post('/category', createCategory);
-router.patch('/category/:id', updatedCategory);
-router.delete('/category/:id', deleteCategory);
+router.get('/category', verifyLoginAdmin, getCategories);
+router.get('/category/:id', verifyLoginAdmin, getCategoryById);
+router.post('/category', verifyLoginAdmin, verifyManagerCategory, createCategory);
+router.patch('/category/:id', verifyLoginAdmin, verifyManagerCategory, updatedCategory);
+router.delete('/category/:id', verifyLoginAdmin, verifyManagerCategory, deleteCategory);
 
 export default router;
