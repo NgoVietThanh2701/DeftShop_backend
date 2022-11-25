@@ -67,13 +67,6 @@ const Product = db.define('product', {
          notEmpty: true
       }
    },
-   userId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      validate: {
-         notEmpty: true,
-      }
-   }
 }, {
    freezeTableName: true
 });
@@ -84,7 +77,8 @@ Product.belongsTo(Category, { foreignKey: 'categoryId' });
 SubCategory.hasMany(Product);
 Product.belongsTo(SubCategory, { foreignKey: 'subCategoryId' });
 
-User.hasMany(Product);
-Product.belongsTo(User, { foreignKey: 'userId' });
+// (async () => {
+//    await db.sync();
+// })();
 
 export default Product

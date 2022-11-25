@@ -1,5 +1,6 @@
 import Notify from "../models/NotifyModel"
 import { Op } from "sequelize";
+import Seller from "../models/SellerModel";
 
 export const createNotify = async (req, res) => {
    const { type, content } = req.body;
@@ -32,6 +33,23 @@ export const getNotifyById = async (req, res) => {
          attributes: ["uuid", 'type', 'title', 'content', 'userId'],
          where: {
             [Op.and]: [{ type: "user" }, { userId: req.userId }]
+         }
+      });
+      res.status(200).json(notify);
+   } catch (error) {
+      return res.status(500).json({ msg: error.message })
+   }
+}
+
+export const getNotifySellerById = async (req, res) => {
+   if (!req.sellerId) return res.status(400).json({ msg: "please login with seller" })
+   const seller = await Seller.findOne({ where: { id: req.sellerId } });
+
+   try {
+      const notify = await Notify.findAll({
+         attributes: ["uuid", 'type', 'title', 'content', 'userId'],
+         where: {
+            [Op.and]: [{ type: "seller" }, { userId: seller.userId }]
          }
       });
       res.status(200).json(notify);

@@ -29,11 +29,6 @@ const store = new sessionStore({
    db: db
 });
 
-// automatic model to table db
-// (async () => {
-//    await db.sync();
-// })();
-
 app.use(session({
    secret: process.env.SESS_SECRET,
    resave: false,
@@ -68,8 +63,6 @@ app.use(AuthUserRoute);
 
 //genera route
 app.use(NotifyRoute);
-
-
 
 //store.sync(); // create session db
 

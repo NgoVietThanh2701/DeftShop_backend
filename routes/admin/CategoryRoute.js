@@ -1,7 +1,6 @@
 import express from "express";
 import {
    getCategories,
-   getCategoryById,
    createCategory,
    updatedCategory,
    deleteCategory
@@ -10,7 +9,7 @@ import { verifyLoginAdmin, verifyManagerCategory } from "../../middleware/admin/
 const router = express.Router();
 
 router.get('/category', verifyLoginAdmin, getCategories);
-router.get('/category/:id', verifyLoginAdmin, getCategoryById);
+// router.get('/category/:id', verifyLoginAdmin, getCategoryById);
 router.post('/category', verifyLoginAdmin, verifyManagerCategory, createCategory);
 router.patch('/category/:id', verifyLoginAdmin, verifyManagerCategory, updatedCategory);
 router.delete('/category/:id', verifyLoginAdmin, verifyManagerCategory, deleteCategory);
