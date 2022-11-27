@@ -2,6 +2,7 @@ import Category from '../../models/CategoryModel';
 import SubCategory from '../../models/SubCategoryModel';
 import { Op } from 'sequelize';
 import Manager from '../../models/ManagerModel';
+import Seller from '../../models/SellerModel';
 
 export const getSubCategorybyCate = async (req, res) => {
    try {
@@ -13,13 +14,31 @@ export const getSubCategorybyCate = async (req, res) => {
       var subCategory;
       if (req.sellerId) {
          subCategory = await SubCategory.findAll({
+            attributes: ['uuid', 'id', 'name', 'createdAt'],
             where: {
                [Op.and]: [{ sellerId: req.sellerId }, { categoryId: category.id }]
-            }
+            },
+            include: [{
+               model: Category,
+               attributes: ['name']
+            },
+            {
+               model: Seller,
+               attributes: ['name']
+            }]
          })
       } else {
          subCategory = await SubCategory.findAll({
-            where: { categoryId: category.id }
+            attributes: ['uuid', 'id', 'name', 'createdAt'],
+            where: { categoryId: category.id },
+            include: [{
+               model: Category,
+               attributes: ['name']
+            },
+            {
+               model: Seller,
+               attributes: ['name']
+            }]
          });
       }
       if (!subCategory) return res.status(404).json({ msg: "subCategory not found" });

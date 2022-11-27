@@ -17,7 +17,7 @@ export const getProductsBySubCate = async (req, res) => {
    if (subCategory.categoryId !== category.id) return res.status(400).json({ msg: "subCategory not belong to category" })
    try {
       const products = await Product.findAll({
-         attributes: ["uuid", 'name', 'image', 'url', 'description', 'price'],
+         attributes: ["id", "uuid", 'name', 'image', 'url', 'description', 'price',],
          where: {
             subCategoryId: subCategory.id
          },

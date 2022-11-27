@@ -5,32 +5,13 @@ import { Op } from "sequelize";
 export const getCategories = async (req, res) => {
    try {
       const categories = await Category.findAll({
-         attributes: ['uuid', 'name'],
+         attributes: ['id', 'uuid', 'name', 'createdAt'],
          include: [{
             model: Manager,
             attributes: ['name', 'email', 'role']
          }]
       });
       res.status(200).json(categories);
-   } catch (error) {
-      res.status(500).json({ msg: error.message })
-   }
-}
-
-export const getCategoryById = async (req, res) => {
-   try {
-      const category = await Category.findOne({
-         attributes: ['uuid', 'name'],
-         where: {
-            uuid: req.params.id
-         },
-         include: [{
-            model: Manager,
-            attributes: ['name', 'email', 'role']
-         }]
-      });
-      if (!category) return res.status(404).json({ msg: "category not found" });
-      res.status(200).json(category);
    } catch (error) {
       res.status(500).json({ msg: error.message })
    }

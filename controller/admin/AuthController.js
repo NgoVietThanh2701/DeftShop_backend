@@ -9,7 +9,7 @@ export const login = async (req, res) => {
          email: req.body.email
       }
    });
-   var match, uuid, name, email;
+   var match, uuid, name, email, role, user;
    if (!manager) {
       manager = await Seller.findOne({
          where: {
@@ -20,24 +20,23 @@ export const login = async (req, res) => {
          return res.status(404).json({ msg: "manager not found!" });
       if (manager.status === "no")
          return res.status(404).json({ msg: "please wait! we will approval account you" });
-      const user = await User.findOne({
+      user = await User.findOne({
          where: { id: manager.userId }
       });
-      match = await argon2.verify(user.password, req.body.password);
       uuid = user.uuid;
       name = user.name;
       email = user.email;
-      req.session.adminUUID = user.uuid;
    }
-   if (!match) { match = await argon2.verify(manager.password, req.body.password); }
+   match = await argon2.verify(user ? user.password : manager.password, req.body.password);
    if (!match) return res.status(400).json({ msg: "Wrong password!" });
-   if (!req.session.adminUUID) { req.session.adminUUID = manager.uuid; }
-   if (!uuid && !name && !email) {
+   user ? req.session.adminUUID = user.uuid : req.session.adminUUID = manager.uuid
+   if (!user) {
       uuid = manager.uuid;
       name = manager.name;
       email = manager.email;
+      role = manager.role;
    }
-   res.status(200).json({ uuid, name, email });
+   res.status(200).json({ uuid, name, email, role });
 }
 
 export const me = async (req, res) => {

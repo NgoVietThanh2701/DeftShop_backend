@@ -80,3 +80,4 @@ export const updatedStatusSeller = async (req, res) => { // admin updated
    }
 }
 
+

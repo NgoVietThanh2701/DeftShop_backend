@@ -12,7 +12,7 @@ import { dontManagerUser, verifyLoginAdmin, verifySeller } from "../../middlewar
 const router = express.Router();
 
 router.get('/category/:id/', verifyLoginAdmin, dontManagerUser, getProductsByCate);
-router.get('/category/:id/:subId', verifyLoginAdmin, verifySeller, getProductsBySubCate);
+router.get('/category/:id/:subId', verifyLoginAdmin, dontManagerUser, getProductsBySubCate);
 router.get('/category/:id/:subId/:proId', verifyLoginAdmin, verifySeller, getProductsBySubCatetById);
 router.post('/category/:id/:subId', verifyLoginAdmin, verifySeller, createProduct);
 router.patch('/category/:id/:subId/:proId', verifyLoginAdmin, verifySeller, updatedProduct);

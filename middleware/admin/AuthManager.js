@@ -82,7 +82,7 @@ export const verifyManagerCategory = async (req, res, next) => { // admin va man
 }
 
 export const verifyManagerUser = async (req, res, next) => { // admin va manager_category
-   const manager = await Manager.findOne({
+   var manager = await Manager.findOne({
       where: {
          uuid: req.session.adminUUID
       }
