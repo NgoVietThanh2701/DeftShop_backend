@@ -36,20 +36,43 @@ export const getProductsBySubCate = async (req, res) => {
    }
 }
 
+export const getAllProducts = async (req, res) => {
+   try {
+      const products = await Product.findAll({
+         attributes: ["id", "uuid", 'name', 'image', 'url', 'description', 'price'],
+         include: [{
+            model: Category,
+            attributes: ['id', 'uuid', 'name', 'managerId']
+         },
+         {
+            model: SubCategory,
+            attributes: ['id', 'uuid', 'name', 'categoryId', 'sellerId']
+         }]
+      });
+      res.status(200).json(products)
+   } catch (error) {
+      res.status(400).json({ msg: error.message });
+   }
+}
+
 export const getProductsByCate = async (req, res) => {
    //check 
    const category = await Category.findOne({ where: { uuid: req.params.id } });
    if (!category) return res.status(400).json({ msg: "Category not found" })
    try {
       const products = await Product.findAll({
-         attributes: ["uuid", 'name', 'image', 'url', 'description', 'price'],
+         attributes: ["id", "uuid", 'name', 'image', 'url', 'description', 'price'],
          where: {
             categoryId: category.id
          },
          include: [{
-            model: Manager,
-            attributes: ['id', 'uuid', 'name', 'email', 'role']
-         },]
+            model: Category,
+            attributes: ['id', 'uuid', 'name', 'managerId']
+         },
+         {
+            model: SubCategory,
+            attributes: ['id', 'uuid', 'name', 'categoryId', 'sellerId']
+         }]
       });
       res.status(200).json(products)
    } catch (error) {
@@ -66,7 +89,7 @@ export const getProductsBySubCatetById = async (req, res) => {
    if (subCategory.categoryId !== category.id) return res.status(400).json({ msg: "subCategory not belong to category" })
    try {
       const products = await Product.findOne({
-         attributes: ["uuid", 'name', 'image', 'url', 'description', 'price'],
+         attributes: ["uuid", 'name', 'image', 'url', 'description', 'price', 'createdAt'],
          where: {
             [Op.and]: [{ subCategoryId: subCategory.id }, { uuid: req.params.proId }]
          },
@@ -171,7 +194,7 @@ export const updatedProduct = async (req, res) => {
       },
          {
             where: {
-               uuid: req.params.proId
+               id: product.id
             }
          }
       )

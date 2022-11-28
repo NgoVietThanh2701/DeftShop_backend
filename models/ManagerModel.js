@@ -28,6 +28,14 @@ const Manager = db.define('manager', {
          isEmail: true
       }
    },
+   image: {
+      type: DataTypes.STRING,
+      allowNull: true,
+   },
+   url: {
+      type: DataTypes.STRING,
+      allowNull: true,
+   },
    password: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -45,5 +53,9 @@ const Manager = db.define('manager', {
 }, {
    freezeTableName: true
 });
+
+// (async () => {
+//    await db.sync();
+// })();
 
 export default Manager

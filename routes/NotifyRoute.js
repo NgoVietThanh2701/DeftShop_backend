@@ -1,12 +1,12 @@
 import express from 'express';
-import { getNotify, getNotifyById, getNotifySellerById } from '../controller/NotifyController';
+import { getNotifyAdmin, getNotifyByIdUser, getNotifySellerById } from '../controller/NotifyController';
 import { verifyLogin } from '../middleware/user/AuthUser';
-import { verifyLoginAdmin, verifyManagerUser, verifySeller } from '../middleware/admin/AuthManager';
+import { verifyLoginAdmin, verifyManagerUser, verifyOnlyAdmin, verifySeller } from '../middleware/admin/AuthManager';
 
 const router = express.Router();
 
-router.get('/notify', verifyLogin, getNotifyById);
-router.get('/admin/notify', verifyLoginAdmin, verifyManagerUser, getNotify);
+router.get('/admin/notify', verifyLoginAdmin, verifyOnlyAdmin, getNotifyAdmin);
+router.get('/notify', verifyLogin, getNotifyByIdUser);
 router.get('/admin/notify-seller', verifyLoginAdmin, verifySeller, getNotifySellerById);
 
 export default router;

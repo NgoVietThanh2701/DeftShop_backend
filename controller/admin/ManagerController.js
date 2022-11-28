@@ -1,10 +1,12 @@
 import Manager from '../../models/ManagerModel';
 import argon2 from 'argon2';
+import path from "path";
+import fs from "fs"
 
 export const getManagers = async (req, res) => {
    try {
       const managers = await Manager.findAll({
-         attributes: ['uuid', 'name', 'email', 'role', 'createdAt']
+         attributes: ['uuid', 'name', 'email', 'image', 'url', 'role', 'createdAt']
       });
       res.status(200).json(managers);
    } catch (error) {
@@ -15,7 +17,7 @@ export const getManagers = async (req, res) => {
 export const getManagerById = async (req, res) => {
    try {
       const manager = await Manager.findOne({
-         attributes: ['uuid', 'name', 'email', 'role', 'createdAt'],
+         attributes: ['uuid', 'name', 'email', 'image', 'url', 'role', 'createdAt'],
          where: {
             uuid: req.params.id
          }
@@ -61,16 +63,8 @@ export const updatedManager = async (req, res) => {
       }
    });
    if (!manager) return res.status(404).json({ msg: "manager not found" });
-   const { name, email, password, confPassword, role } = req.body;
+   const { name, password, confPassword, role } = req.body;
    // get all manager for check
-   const managers = await Manager.findAll();
-   let checkEmail = false;
-   managers.map((m) => {
-      if (m.email === email && manager.email !== email) { checkEmail = true; }
-   });
-   console.log(manager.email)
-   if (checkEmail)
-      return res.status(404).json({ msg: "email exists, please retype email" })
    let hashPassword;
    if (password === "" || password === null) {
       hashPassword = user.password;
@@ -79,10 +73,37 @@ export const updatedManager = async (req, res) => {
    }
    if (password !== confPassword)
       return res.status(400).json({ msg: "Password not matched" });
+   let fileName, url;
+   if (req.files === null) {
+      fileName = manager.image ? manager.image : null;
+      url = manager.url ? manager.url : null;
+   }
+   else {
+      const file = req.files.file;
+      const fileSize = file.data.length;
+      const ext = path.extname(file.name);
+      fileName = file.md5 + ext;
+      const allowedType = ['.png', '.jpg', '.jpeg'];
+
+      if (!allowedType.includes(ext.toLocaleLowerCase()))
+         return res.status(422).json({ msg: "Invalid image" })
+      if (fileSize > 5000000) return res.status(422).json({ msg: "Image must be less than 5 MB" });
+
+      if (manager.image !== null && manager.url !== null) {
+         const filepath = `./public/images/users/${manager.image}`;
+         fs.unlinkSync(filepath); // delete file in path folder public/images/products
+      }
+      url = `${req.protocol}://${req.get("host")}/images/users/${fileName}`;
+      file.mv(`./public/images/users/${fileName}`, (err) => {
+         if (err) return res.status(500).json({ msg: err.message });
+      });
+   }
    try {
       await Manager.update({
          name: name,
-         email: email,
+         email: manager.email,
+         image: fileName,
+         url: url,
          password: hashPassword,
          role: role
       }, {

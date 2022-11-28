@@ -6,30 +6,6 @@ import User from "./UserModel";
 const { DataTypes } = Sequelize;
 
 const Seller = db.define('seller', {
-   name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-         notEmpty: true,
-         len: [3, 100]
-      }
-   },
-   phone: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      validate: {
-         notEmpty: true,
-         len: 10,
-      }
-   },
-   email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-         notEmpty: true,
-         isEmail: true
-      }
-   },
    nameShop: {
       type: DataTypes.STRING,
       allowNull: false,

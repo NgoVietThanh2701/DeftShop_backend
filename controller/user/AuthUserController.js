@@ -1,17 +1,14 @@
 import User from "../../models/UserModel";
 import argon2 from 'argon2';
 
-export const registry = async (req, res) => {
-   const { name, phone, email, password, confPassword } = req.body;
+export const registryUser = async (req, res) => {
+   const { name, email, password, confPassword } = req.body;
    if (password !== confPassword)
       return res.status(400).json({ msg: "password not matched" });
-   if (phone.length !== 10)
-      return res.status(400).json({ msg: "phone must is 10 number" })
    const hashPassword = await argon2.hash(password);
    try {
       await User.create({
          name: name,
-         phone: phone,
          email: email,
          password: hashPassword,
       });
@@ -22,7 +19,7 @@ export const registry = async (req, res) => {
 }
 
 export const login = async (req, res) => {
-   var user = await User.findOne({
+   const user = await User.findOne({
       where: {
          email: req.body.email
       }
@@ -42,7 +39,7 @@ export const me = async (req, res) => {
       return res.status(401).json({ msg: "Please login account!" });
    }
    var user = await User.findOne({
-      attributes: ['uuid', 'name', 'phone', 'email'],
+      attributes: ['id', 'uuid', 'name', 'phone', 'email', 'image', 'url', 'createdAt'],
       where: {
          uuid: req.session.userUUID
       }

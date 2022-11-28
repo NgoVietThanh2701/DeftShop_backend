@@ -13,10 +13,10 @@ export const createNotify = async (req, res) => {
    }
 }
 
-export const getNotify = async (req, res) => {
+export const getNotifyAdmin = async (req, res) => {
    try {
       const notify = await Notify.findAll({
-         attributes: ["uuid", 'type', 'title', 'content', 'userId'],
+         attributes: ['id', "uuid", 'type', 'title', 'content', 'userId', 'createdAt'],
          where: {
             type: "admin"
          }
@@ -27,10 +27,10 @@ export const getNotify = async (req, res) => {
    }
 }
 
-export const getNotifyById = async (req, res) => {
+export const getNotifyByIdUser = async (req, res) => {
    try {
       const notify = await Notify.findAll({
-         attributes: ["uuid", 'type', 'title', 'content', 'userId'],
+         attributes: ['id', "uuid", 'type', 'title', 'content', 'userId', 'createdAt'],
          where: {
             [Op.and]: [{ type: "user" }, { userId: req.userId }]
          }
@@ -47,7 +47,7 @@ export const getNotifySellerById = async (req, res) => {
 
    try {
       const notify = await Notify.findAll({
-         attributes: ["uuid", 'type', 'title', 'content', 'userId'],
+         attributes: ['id', "uuid", 'type', 'title', 'content', 'userId', 'createdAt'],
          where: {
             [Op.and]: [{ type: "seller" }, { userId: seller.userId }]
          }

@@ -44,7 +44,7 @@ export const me = async (req, res) => {
       return res.status(401).json({ msg: "Please login account!" });
    }
    var manager = await Manager.findOne({
-      attributes: ['uuid', 'name', 'email', 'role'],
+      attributes: ['id', 'uuid', 'name', 'email', 'image', 'url', 'role'],
       where: {
          uuid: req.session.adminUUID
       }
@@ -54,10 +54,13 @@ export const me = async (req, res) => {
          where: { uuid: req.session.adminUUID }
       });
       manager = await Seller.findOne({
-         attributes: ['id', 'name', 'phone', 'email', 'nameShop', 'address', 'description', 'userId'],
+         attributes: ['id', 'nameShop', 'address', 'description', 'createdAt'],
          where: {
             userId: user.id
-         }
+         },
+         include: [{
+            model: User
+         }]
       })
       if (!manager) return res.status(404).json({ msg: "manager not found!" });
    }

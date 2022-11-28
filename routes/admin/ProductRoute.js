@@ -5,13 +5,15 @@ import {
    createProduct,
    updatedProduct,
    deleteProduct,
-   getProductsByCate
+   getProductsByCate,
+   getAllProducts
 } from '../../controller/admin/ProductController';
 import { dontManagerUser, verifyLoginAdmin, verifySeller } from "../../middleware/admin/AuthManager"
 
 const router = express.Router();
 
-router.get('/category/:id/', verifyLoginAdmin, dontManagerUser, getProductsByCate);
+router.get('/products', verifyLoginAdmin, dontManagerUser, getAllProducts);
+router.get('/category-product/:id/', verifyLoginAdmin, dontManagerUser, getProductsByCate);
 router.get('/category/:id/:subId', verifyLoginAdmin, dontManagerUser, getProductsBySubCate);
 router.get('/category/:id/:subId/:proId', verifyLoginAdmin, verifySeller, getProductsBySubCatetById);
 router.post('/category/:id/:subId', verifyLoginAdmin, verifySeller, createProduct);

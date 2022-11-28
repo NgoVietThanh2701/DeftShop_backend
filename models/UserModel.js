@@ -23,9 +23,8 @@ const User = db.define('user', {
    },
    phone: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       validate: {
-         notEmpty: true,
          len: 10,
       }
    },
@@ -36,6 +35,14 @@ const User = db.define('user', {
          notEmpty: true,
          isEmail: true
       }
+   },
+   image: {
+      type: DataTypes.STRING,
+      allowNull: true,
+   },
+   url: {
+      type: DataTypes.STRING,
+      allowNull: true,
    },
    password: {
       type: DataTypes.STRING,

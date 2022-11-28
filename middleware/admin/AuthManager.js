@@ -67,6 +67,14 @@ export const verifySeller = async (req, res, next) => {
    next();
 }
 
+export const verifyOnlyAdmin = async (req, res, next) => {
+   const admin = await Manager.findOne({ where: { uuid: req.session.adminUUID } });
+   if (!admin) return res.status(400).json({ msg: "admin not found" });
+   if (admin.role !== 'admin') return res.status(401).json({ msg: "please, login with role admin" })
+   req.adminId = admin.id;
+   next();
+}
+
 export const verifyManagerCategory = async (req, res, next) => { // admin va manager_category
    const manager = await Manager.findOne({
       where: {

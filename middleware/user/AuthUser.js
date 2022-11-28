@@ -12,8 +12,5 @@ export const verifyLogin = async (req, res, next) => {
    if (!user)
       return res.status(404).json({ msg: "user not found!" });
    req.userId = user.id;
-   req.name = user.name;
-   req.phone = user.phone;
-   req.email = user.email;
    next()
 }
