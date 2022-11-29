@@ -53,6 +53,10 @@ const Product = db.define('product', {
          notEmpty: true,
       }
    },
+   discount: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+   },
    categoryId: {
       type: DataTypes.INTEGER,
       allowNull: false,

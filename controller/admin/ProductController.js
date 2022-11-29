@@ -17,7 +17,7 @@ export const getProductsBySubCate = async (req, res) => {
    if (subCategory.categoryId !== category.id) return res.status(400).json({ msg: "subCategory not belong to category" })
    try {
       const products = await Product.findAll({
-         attributes: ["id", "uuid", 'name', 'image', 'url', 'description', 'price',],
+         attributes: ["id", "uuid", 'name', 'image', 'url', 'description', 'price', 'discount', 'createdAt'],
          where: {
             subCategoryId: subCategory.id
          },
@@ -38,50 +38,48 @@ export const getProductsBySubCate = async (req, res) => {
 
 export const getAllProducts = async (req, res) => {
    try {
-      const products = await Product.findAll({
-         attributes: ["id", "uuid", 'name', 'image', 'url', 'description', 'price'],
-         include: [{
-            model: Category,
-            attributes: ['id', 'uuid', 'name', 'managerId']
-         },
-         {
-            model: SubCategory,
-            attributes: ['id', 'uuid', 'name', 'categoryId', 'sellerId']
-         }]
-      });
+      let products;
+      if (req.sellerId) {
+         const subCategory = await SubCategory.findOne({
+            where: {
+               sellerId: req.sellerId
+            }
+         });
+         products = await Product.findAll({
+            attributes: ["id", "uuid", 'name', 'image', 'url', 'description', 'price', 'discount', 'createdAt'],
+            where: {
+               subCategoryId: subCategory.id
+            },
+            include: [{
+               model: Category,
+               attributes: ['id', 'uuid', 'name', 'managerId']
+            },
+            {
+               model: SubCategory,
+               attributes: ['id', 'uuid', 'name', 'categoryId', 'sellerId']
+            }]
+         });
+      } else {
+         products = await Product.findAll({
+            attributes: ["id", "uuid", 'name', 'image', 'url', 'description', 'price', 'discount', 'createdAt'],
+            include: [{
+               model: Category,
+               attributes: ['id', 'uuid', 'name', 'managerId']
+            },
+            {
+               model: SubCategory,
+               attributes: ['id', 'uuid', 'name', 'categoryId', 'sellerId']
+            }]
+         });
+      }
       res.status(200).json(products)
    } catch (error) {
       res.status(400).json({ msg: error.message });
    }
 }
 
-export const getProductsByCate = async (req, res) => {
-   //check 
-   const category = await Category.findOne({ where: { uuid: req.params.id } });
-   if (!category) return res.status(400).json({ msg: "Category not found" })
-   try {
-      const products = await Product.findAll({
-         attributes: ["id", "uuid", 'name', 'image', 'url', 'description', 'price'],
-         where: {
-            categoryId: category.id
-         },
-         include: [{
-            model: Category,
-            attributes: ['id', 'uuid', 'name', 'managerId']
-         },
-         {
-            model: SubCategory,
-            attributes: ['id', 'uuid', 'name', 'categoryId', 'sellerId']
-         }]
-      });
-      res.status(200).json(products)
-   } catch (error) {
-      res.status(400).json({ msg: error.message });
-   }
-}
 
-
-export const getProductsBySubCatetById = async (req, res) => {
+export const getProductsBySubCateById = async (req, res) => {
    //check 
    const category = await Category.findOne({ where: { uuid: req.params.id } });
    const subCategory = await SubCategory.findOne({ where: { uuid: req.params.subId } });
@@ -110,14 +108,12 @@ export const getProductsBySubCatetById = async (req, res) => {
 
 export const createProduct = async (req, res) => {
    if (req.files === null) return res.status(400).json({ msg: "No File uploaded" });
-   const name = req.body.name;
-   const description = req.body.description;
-   const price = req.body.price;
    const file = req.files.file;
    const fileSize = file.data.length;
    const ext = path.extname(file.name);
 
-   const fileName = file.md5 + ext;
+   let date_ob = new Date();
+   const fileName = file.md5 + date_ob.getHours() + date_ob.getMinutes() + date_ob.getSeconds() + ext;
    const url = `${req.protocol}://${req.get("host")}/images/products/${fileName}`;
    const allowedType = ['.png', '.jpg', '.jpeg'];
 
@@ -130,6 +126,8 @@ export const createProduct = async (req, res) => {
    if (subCategory.sellerId !== req.sellerId) return res.status(400).json({ msg: "subcategory not belong you" })
    if (subCategory.categoryId !== category.id) return res.status(400).json({ msg: "subCategory not belong to category" })
 
+   const { name, description, price, discount } = req.body;
+
    file.mv(`./public/images/products/${fileName}`, async (err) => {
       if (err) return res.status(500).json({ msg: err.message });
       try {
@@ -140,6 +138,7 @@ export const createProduct = async (req, res) => {
                url: url,
                description: description,
                price: price,
+               discount: discount,
                categoryId: category.id,
                subCategoryId: subCategory.id,
             });
@@ -169,7 +168,8 @@ export const updatedProduct = async (req, res) => {
       const file = req.files.file;
       const fileSize = file.data.length;
       const ext = path.extname(file.name);
-      fileName = file.md5 + ext;
+      let date_ob = new Date();
+      fileName = file.md5 + date_ob.getHours() + date_ob.getMinutes() + date_ob.getSeconds() + ext;
       const allowedType = ['.png', '.jpg', '.jpeg'];
 
       if (!allowedType.includes(ext.toLowerCase())) return res.status(422).json({ msg: "Invalid Images" });
@@ -182,7 +182,7 @@ export const updatedProduct = async (req, res) => {
          if (err) return res.status(500).json({ msg: err.message });
       });
    }
-   const { name, description, price } = req.body;
+   const { name, description, price, discount } = req.body;
    const url = `${req.protocol}://${req.get("host")}/images/products/${fileName}`;
    try {
       await Product.update({
@@ -190,7 +190,8 @@ export const updatedProduct = async (req, res) => {
          image: fileName,
          url: url,
          description: description,
-         price: price
+         price: price,
+         discount: discount
       },
          {
             where: {
@@ -204,8 +205,42 @@ export const updatedProduct = async (req, res) => {
    }
 }
 
-export const deleteProduct = async (req, res) => {
-   //check 
+export const deleteProduct = async (req, res) => { //admin delete
+   const product = await Product.findOne({
+      where: {
+         uuid: req.params.proId
+      },
+   });
+   if (!product) return res.status(400).json({ msg: "product not found" });
+   try {
+      const filepath = `./public/images/products/${product.image}`;
+      fs.unlinkSync(filepath);
+      // send notify for seller
+      // get uuid user
+      const subCategory = await SubCategory.findOne({ where: { id: product.subCategory } })
+      const seller = await Seller.findOne({
+         where: { id: subCategory.sellerId }
+      });
+      if (!seller) return res.status(400).json({ msg: "seller not found" })
+      await Notify.create({
+         type: "seller",
+         title: "Sản phẩm không hợp lệ",
+         content: `Sản phẩm ${product.name} đã bị xoá do vi phạm tiêu chuẩn cộng đồng`,
+         userId: seller.userId
+      });
+      //delete db
+      await Product.destroy({
+         where: {
+            id: product.id
+         }
+      });
+      res.status(200).json({ msg: "Product Deleted Successfully" });
+   } catch (error) {
+      console.log(error.message);
+   }
+}
+
+export const deleteProductByCate = async (req, res) => { // seller delete
    const category = await Category.findOne({ where: { uuid: req.params.id } });
    const subCategory = await SubCategory.findOne({ where: { uuid: req.params.subId } });
    if (req.sellerId && subCategory.sellerId !== req.sellerId) return res.status(400).json({ msg: "subcategory not belong you" })
@@ -219,18 +254,6 @@ export const deleteProduct = async (req, res) => {
    try {
       const filepath = `./public/images/products/${product.image}`;
       fs.unlinkSync(filepath);
-      // send notify for seller
-      // get uuid user
-      const seller = await Seller.findOne({
-         where: { id: subCategory.sellerId }
-      });
-      if (!seller) return res.status(400).json({ msg: "seller not found" })
-      await Notify.create({
-         type: "seller",
-         title: "Sản phẩm không hợp lệ",
-         content: `Sản phẩm ${product.name} đã bị xoá do vi phạm tiêu chuẩn cộng đồng`,
-         userId: seller.userId
-      });
       //delete db
       await Product.destroy({
          where: {

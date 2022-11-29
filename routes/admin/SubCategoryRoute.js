@@ -5,11 +5,11 @@ import {
    updatedSubCategory,
    deleteSubCategory,
 } from '../../controller/admin/SubCategoryController';
-import { verifyLoginAdmin, verifySeller, dontManagerUser } from "../../middleware/admin/AuthManager";
+import { verifyLoginAdmin, verifySeller } from "../../middleware/admin/AuthManager";
 
 const router = express.Router();
 
-router.get('/category/:id', verifyLoginAdmin, dontManagerUser, getSubCategorybyCate);
+router.get('/category/:id', verifyLoginAdmin, getSubCategorybyCate);
 // router.get('/category/:id/:subId', verifyLoginAdmin, getSubCategoryById);
 router.post('/category/:id', verifyLoginAdmin, verifySeller, createSubCategory);
 router.patch('/category/:id/:subId', verifyLoginAdmin, verifySeller, updatedSubCategory);

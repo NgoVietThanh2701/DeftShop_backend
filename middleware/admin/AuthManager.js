@@ -11,10 +11,12 @@ export const verifyLoginAdmin = async (req, res, next) => {
          uuid: req.session.adminUUID
       }
    })
+   let user;
    if (!manager) {
-      const user = await User.findOne({
+      user = await User.findOne({
          where: { uuid: req.session.adminUUID }
       });
+      if (!user) return res.status(400).json({ msg: "user login not found" })
       manager = await Seller.findOne({
          where: {
             userId: user.id
@@ -24,45 +26,23 @@ export const verifyLoginAdmin = async (req, res, next) => {
          return res.status(404).json({ msg: "manager not found!" });
       if (manager.status === "no")
          return res.status(404).json({ msg: "please wait! we will approval account you" });
-      req.sellerId = manager.id
+      req.sellerId = manager.id;
    }
-   next()
-}
-
-export const dontManagerUser = async (req, res, next) => {
-   var manager = await Manager.findOne({
-      where: {
-         uuid: req.session.adminUUID
-      }
-   });
-   if (!manager) {
-      const user = await User.findOne({
-         where: { uuid: req.session.adminUUID }
-      });
-      manager = await Seller.findOne({
-         where: {
-            userId: user.id
-         }
-      });
-      if (!manager)
-         return res.status(404).json({ msg: "manager not found!" });
-      if (manager.status === "no")
-         return res.status(404).json({ msg: "please wait! we will approval account you" });
-   }
-   if (manager.role && manager.role === "manager_user")
-      return res.status(400).json({ msg: "please,login with account allow" })
+   req.loginUUID = user ? user.uuid : manager.uuid;
    next()
 }
 
 export const verifySeller = async (req, res, next) => {
    const user = await User.findOne({ where: { uuid: req.session.adminUUID } });
-   if (!user) return res.status(400).json({ msg: "must login with seller" })
+   if (!user) return res.status(400).json({ msg: "must login with role is seller" })
    const seller = await Seller.findOne({
       where: {
          userId: user.id
       }
    });
    if (!seller) return res.status(400).json({ msg: "seller not found" });
+   if (seller.status === "no")
+      return res.status(404).json({ msg: "please wait! we will approval account you" });
    req.sellerId = seller.id;
    next();
 }
@@ -70,35 +50,7 @@ export const verifySeller = async (req, res, next) => {
 export const verifyOnlyAdmin = async (req, res, next) => {
    const admin = await Manager.findOne({ where: { uuid: req.session.adminUUID } });
    if (!admin) return res.status(400).json({ msg: "admin not found" });
-   if (admin.role !== 'admin') return res.status(401).json({ msg: "please, login with role admin" })
+   if (admin.role !== 'admin') return res.status(401).json({ msg: "please, login with role is admin" })
    req.adminId = admin.id;
-   next();
-}
-
-export const verifyManagerCategory = async (req, res, next) => { // admin va manager_category
-   const manager = await Manager.findOne({
-      where: {
-         uuid: req.session.adminUUID
-      }
-   });
-   if (!manager) return res.status(400).json({ msg: "manager not found" });
-   if (manager.role !== "admin" && manager.role !== "manager_category")
-      return res.status(404).json({ msg: "must login with admin or manager category" });
-   req.managerId = manager.id;
-   req.role = manager.role;
-   next();
-}
-
-export const verifyManagerUser = async (req, res, next) => { // admin va manager_category
-   var manager = await Manager.findOne({
-      where: {
-         uuid: req.session.adminUUID
-      }
-   });
-   if (!manager) return res.status(400).json({ msg: "manager not found" });
-   if (manager.role !== "admin" && manager.role !== "manager_user")
-      return res.status(404).json({ msg: "must login with admin or manager user" });
-   req.managerId = manager.id;
-   req.role = manager.role;
    next();
 }

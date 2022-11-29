@@ -1,7 +1,7 @@
 import express from 'express';
 import { getNotifyAdmin, getNotifyByIdUser, getNotifySellerById } from '../controller/NotifyController';
 import { verifyLogin } from '../middleware/user/AuthUser';
-import { verifyLoginAdmin, verifyManagerUser, verifyOnlyAdmin, verifySeller } from '../middleware/admin/AuthManager';
+import { verifyLoginAdmin, verifyOnlyAdmin, verifySeller } from '../middleware/admin/AuthManager';
 
 const router = express.Router();
 

@@ -1,11 +1,12 @@
 import express from 'express';
-import { getSellers, updatedStatusSeller } from '../../controller/admin/SellerController';
-import { verifyLoginAdmin, verifyManagerUser, verifyOnlyAdmin } from '../../middleware/admin/AuthManager';
+import { getSellers, updatedStatusSeller, getSellerById } from '../../controller/admin/SellerController';
+import { verifyLoginAdmin, verifyOnlyAdmin } from '../../middleware/admin/AuthManager';
 
 const router = express.Router();
 
-router.get('/seller', verifyLoginAdmin, verifyManagerUser, getSellers);
+router.get('/seller', verifyLoginAdmin, getSellers);
+router.get('/seller/:id', verifyLoginAdmin, getSellerById);
 router.patch('/seller/:id', verifyLoginAdmin, verifyOnlyAdmin, updatedStatusSeller);
-router.delete('/seller/:id', verifyLoginAdmin, verifyManagerUser, getSellers);
+router.delete('/seller/:id', verifyLoginAdmin, getSellers);
 
 export default router

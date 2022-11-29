@@ -22,7 +22,7 @@ export const createCategory = async (req, res) => {
    try {
       await Category.create({
          name: name,
-         managerId: req.managerId,
+         managerId: req.adminId,
       });
       res.status(201).json({ msg: "category created successfully" });
    } catch (error) {
@@ -41,7 +41,7 @@ export const updatedCategory = async (req, res) => { // admin updated all catego
       const { name } = req.body;
       await Category.update({
          name: name,
-         managerId: req.managerId
+         managerId: req.adminId
       }, {
          where: { id: category.id }
       });

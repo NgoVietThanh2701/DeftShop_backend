@@ -55,7 +55,8 @@ export const updatedUser = async (req, res) => { // user updated profile
       const file = req.files.file;
       const fileSize = file.data.length;
       const ext = path.extname(file.name);
-      fileName = file.md5 + ext;
+      let date_ob = new Date();
+      const fileName = file.md5 + date_ob.getHours() + date_ob.getMinutes() + date_ob.getSeconds() + ext;
       const allowedType = ['.png', '.jpg', '.jpeg'];
 
       if (!allowedType.includes(ext.toLocaleLowerCase()))

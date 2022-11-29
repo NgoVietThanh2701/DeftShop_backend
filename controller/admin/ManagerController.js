@@ -64,7 +64,6 @@ export const updatedManager = async (req, res) => {
    });
    if (!manager) return res.status(404).json({ msg: "manager not found" });
    const { name, password, confPassword, role } = req.body;
-   // get all manager for check
    let hashPassword;
    if (password === "" || password === null) {
       hashPassword = user.password;
@@ -82,7 +81,8 @@ export const updatedManager = async (req, res) => {
       const file = req.files.file;
       const fileSize = file.data.length;
       const ext = path.extname(file.name);
-      fileName = file.md5 + ext;
+      let date_ob = new Date();
+      const fileName = file.md5 + date_ob.getHours() + date_ob.getMinutes() + date_ob.getSeconds() + ext;
       const allowedType = ['.png', '.jpg', '.jpeg'];
 
       if (!allowedType.includes(ext.toLocaleLowerCase()))

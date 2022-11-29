@@ -48,6 +48,21 @@ export const getSellers = async (req, res) => { // admin get all seller
    }
 }
 
+export const getSellerById = async (req, res) => { // admin get all seller
+   try {
+      const seller = await Seller.findAll({
+         attributes: ['id', 'nameShop', 'address', 'description', 'status'],
+         where: { id: req.params.id },
+         include: [{
+            model: User
+         }]
+      });
+      res.status(200).json(seller)
+   } catch (error) {
+      res.status(400).json({ msg: error.message })
+   }
+}
+
 export const updatedStatusSeller = async (req, res) => { // admin browser seller
 
    const seller = await Seller.findOne({

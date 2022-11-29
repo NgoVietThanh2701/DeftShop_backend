@@ -3,6 +3,7 @@ import SubCategory from '../../models/SubCategoryModel';
 import { Op } from 'sequelize';
 import Manager from '../../models/ManagerModel';
 import Seller from '../../models/SellerModel';
+import User from '../../models/UserModel';
 
 export const getSubCategorybyCate = async (req, res) => {
    try {
@@ -14,7 +15,7 @@ export const getSubCategorybyCate = async (req, res) => {
       var subCategory;
       if (req.sellerId) {
          subCategory = await SubCategory.findAll({
-            attributes: ['uuid', 'id', 'name', 'createdAt'],
+            attributes: ['id', 'uuid', 'name', 'createdAt'],
             where: {
                [Op.and]: [{ sellerId: req.sellerId }, { categoryId: category.id }]
             },
@@ -24,7 +25,7 @@ export const getSubCategorybyCate = async (req, res) => {
             },
             {
                model: Seller,
-               attributes: ['name']
+               attributes: ['nameShop']
             }]
          })
       } else {
@@ -37,7 +38,7 @@ export const getSubCategorybyCate = async (req, res) => {
             },
             {
                model: Seller,
-               attributes: ['name']
+               attributes: ['nameShop']
             }]
          });
       }
