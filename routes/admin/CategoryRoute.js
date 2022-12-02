@@ -7,7 +7,7 @@ import {
 } from '../../controller/admin/CategoryController';
 import { verifyLoginAdmin, verifyOnlyAdmin } from "../../middleware/admin/AuthManager";
 const router = express.Router();
-router.get('/category', getCategories);
+router.get('/category', verifyLoginAdmin, getCategories);
 // router.get('/category/:id', verifyLoginAdmin, getCategoryById);
 router.post('/category', verifyLoginAdmin, verifyOnlyAdmin, createCategory);
 router.patch('/category/:id', verifyLoginAdmin, verifyOnlyAdmin, updatedCategory);

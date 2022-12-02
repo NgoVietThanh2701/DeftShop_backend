@@ -28,7 +28,11 @@ export const getProductsBySubCate = async (req, res) => {
          {
             model: SubCategory,
             attributes: ['id', 'uuid', 'name', 'categoryId', 'sellerId']
-         }]
+         }, {
+            model: Seller,
+            attributes: ['id', 'nameShop']
+         }
+         ]
       });
       res.status(200).json(products)
    } catch (error) {
@@ -40,24 +44,24 @@ export const getAllProducts = async (req, res) => {
    try {
       let products;
       if (req.sellerId) {
-         const subCategory = await SubCategory.findOne({
-            where: {
-               sellerId: req.sellerId
-            }
-         });
          products = await Product.findAll({
             attributes: ["id", "uuid", 'name', 'image', 'url', 'description', 'price', 'discount', 'createdAt'],
             where: {
-               subCategoryId: subCategory.id
+               sellerId: req.sellerId
             },
-            include: [{
-               model: Category,
-               attributes: ['id', 'uuid', 'name', 'managerId']
-            },
-            {
-               model: SubCategory,
-               attributes: ['id', 'uuid', 'name', 'categoryId', 'sellerId']
-            }]
+            include: [
+               {
+                  model: Category,
+                  attributes: ['id', 'uuid', 'name', 'managerId']
+               },
+               {
+                  model: SubCategory,
+                  attributes: ['id', 'uuid', 'name', 'categoryId'],
+               },
+               {
+                  model: Seller,
+                  attributes: ['id', 'nameShop']
+               }]
          });
       } else {
          products = await Product.findAll({
@@ -69,6 +73,10 @@ export const getAllProducts = async (req, res) => {
             {
                model: SubCategory,
                attributes: ['id', 'uuid', 'name', 'categoryId', 'sellerId']
+            },
+            {
+               model: Seller,
+               attributes: ['id', 'nameShop']
             }]
          });
       }
@@ -87,7 +95,7 @@ export const getProductsBySubCateById = async (req, res) => {
    if (subCategory.categoryId !== category.id) return res.status(400).json({ msg: "subCategory not belong to category" })
    try {
       const products = await Product.findOne({
-         attributes: ["uuid", 'name', 'image', 'url', 'description', 'price', 'createdAt'],
+         attributes: ["uuid", 'name', 'image', 'url', 'description', 'discount', 'price', 'createdAt'],
          where: {
             [Op.and]: [{ subCategoryId: subCategory.id }, { uuid: req.params.proId }]
          },
@@ -98,6 +106,10 @@ export const getProductsBySubCateById = async (req, res) => {
          {
             model: SubCategory,
             attributes: ['id', 'uuid', 'name', 'categoryId', 'sellerId']
+         },
+         {
+            model: Seller,
+            attributes: ['id', 'nameShop']
          }]
       });
       res.status(200).json(products)
@@ -141,6 +153,7 @@ export const createProduct = async (req, res) => {
                discount: discount,
                categoryId: category.id,
                subCategoryId: subCategory.id,
+               sellerId: req.sellerId
             });
          res.status(201).json({ msg: "Product Created Successfully" });
       } catch (error) {
@@ -149,7 +162,7 @@ export const createProduct = async (req, res) => {
    })
 }
 
-export const updatedProduct = async (req, res) => {
+export const updatedProductByCate = async (req, res) => {
    //check 
    const category = await Category.findOne({ where: { uuid: req.params.id } });
    const subCategory = await SubCategory.findOne({ where: { uuid: req.params.subId } });
@@ -205,6 +218,59 @@ export const updatedProduct = async (req, res) => {
    }
 }
 
+export const updatedProduct = async (req, res) => {
+   //check 
+   const product = await Product.findOne({
+      where: {
+         uuid: req.params.proId
+      },
+   });
+   if (!product) return res.status(400).json({ msg: "product not found" });
+   let fileName;
+   if (req.files === null) {
+      fileName = product.image;
+   } else {
+      const file = req.files.file;
+      const fileSize = file.data.length;
+      const ext = path.extname(file.name);
+      let date_ob = new Date();
+      fileName = file.md5 + date_ob.getHours() + date_ob.getMinutes() + date_ob.getSeconds() + ext;
+      const allowedType = ['.png', '.jpg', '.jpeg'];
+
+      if (!allowedType.includes(ext.toLowerCase())) return res.status(422).json({ msg: "Invalid Images" });
+      if (fileSize > 5000000) return res.status(422).json({ msg: "Image must be less than 5 MB" });
+
+      const filepath = `./public/images/products/${product.image}`;
+      fs.unlinkSync(filepath); // delete file in path folder public/images/products
+
+      file.mv(`./public/images/products/${fileName}`, (err) => {
+         if (err) return res.status(500).json({ msg: err.message });
+      });
+   }
+   const { name, description, price, discount } = req.body;
+   const url = `${req.protocol}://${req.get("host")}/images/products/${fileName}`;
+   try {
+      await Product.update({
+         name: name,
+         image: fileName,
+         url: url,
+         description: description,
+         price: price,
+         discount: discount
+      },
+         {
+            where: {
+               id: product.id
+            }
+         }
+      )
+      res.status(200).json({ msg: "updated successfully" })
+   } catch (error) {
+      return res.status(400).json({ msg: error.message })
+   }
+}
+
+
 export const deleteProduct = async (req, res) => { //admin delete
    const product = await Product.findOne({
       where: {
@@ -215,19 +281,19 @@ export const deleteProduct = async (req, res) => { //admin delete
    try {
       const filepath = `./public/images/products/${product.image}`;
       fs.unlinkSync(filepath);
-      // send notify for seller
-      // get uuid user
-      const subCategory = await SubCategory.findOne({ where: { id: product.subCategory } })
+      //  send notify seller
       const seller = await Seller.findOne({
-         where: { id: subCategory.sellerId }
+         where: { id: product.sellerId }
       });
       if (!seller) return res.status(400).json({ msg: "seller not found" })
-      await Notify.create({
-         type: "seller",
-         title: "Sản phẩm không hợp lệ",
-         content: `Sản phẩm ${product.name} đã bị xoá do vi phạm tiêu chuẩn cộng đồng`,
-         userId: seller.userId
-      });
+      if (!req.sellerId) {
+         await Notify.create({
+            type: "seller",
+            title: "Sản phẩm không hợp lệ",
+            content: `Sản phẩm ${product.name} đã bị xoá do vi phạm tiêu chuẩn cộng đồng`,
+            userId: seller.userId
+         });
+      }
       //delete db
       await Product.destroy({
          where: {
@@ -254,6 +320,18 @@ export const deleteProductByCate = async (req, res) => { // seller delete
    try {
       const filepath = `./public/images/products/${product.image}`;
       fs.unlinkSync(filepath);
+      // send notify seller
+      const seller = await Seller.findOne({
+         where: { id: product.sellerId }
+      });
+      if (!req.sellerId) {
+         await Notify.create({
+            type: "seller",
+            title: "Sản phẩm không hợp lệ",
+            content: `Sản phẩm ${product.name} đã bị xoá do vi phạm tiêu chuẩn cộng đồng`,
+            userId: seller.userId
+         });
+      }
       //delete db
       await Product.destroy({
          where: {

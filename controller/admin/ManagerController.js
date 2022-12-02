@@ -66,7 +66,7 @@ export const updatedManager = async (req, res) => {
    const { name, password, confPassword, role } = req.body;
    let hashPassword;
    if (password === "" || password === null) {
-      hashPassword = user.password;
+      hashPassword = manager.password;
    } else {
       hashPassword = await argon2.hash(password);
    }
@@ -82,7 +82,7 @@ export const updatedManager = async (req, res) => {
       const fileSize = file.data.length;
       const ext = path.extname(file.name);
       let date_ob = new Date();
-      const fileName = file.md5 + date_ob.getHours() + date_ob.getMinutes() + date_ob.getSeconds() + ext;
+      fileName = file.md5 + date_ob.getHours() + date_ob.getMinutes() + date_ob.getSeconds() + ext;
       const allowedType = ['.png', '.jpg', '.jpeg'];
 
       if (!allowedType.includes(ext.toLocaleLowerCase()))

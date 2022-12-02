@@ -4,6 +4,7 @@ import { Op } from 'sequelize';
 import Manager from '../../models/ManagerModel';
 import Seller from '../../models/SellerModel';
 import User from '../../models/UserModel';
+import Notify from '../../models/NotifyModel'
 
 export const getSubCategorybyCate = async (req, res) => {
    try {
@@ -25,7 +26,7 @@ export const getSubCategorybyCate = async (req, res) => {
             },
             {
                model: Seller,
-               attributes: ['nameShop']
+               attributes: ['id', 'nameShop']
             }]
          })
       } else {
@@ -38,7 +39,7 @@ export const getSubCategorybyCate = async (req, res) => {
             },
             {
                model: Seller,
-               attributes: ['nameShop']
+               attributes: ['id', 'nameShop']
             }]
          });
       }
@@ -105,6 +106,18 @@ export const deleteSubCategory = async (req, res) => {
       });
       if (req.sellerId && req.sellerId !== subCategory.sellerId)
          return res.status(400).json({ msg: "category no belong to you" })
+      // send notify seller
+      const seller = await Seller.findOne({
+         where: { id: subCategory.sellerId }
+      });
+      if (!req.sellerId) {
+         await Notify.create({
+            type: "seller",
+            title: "Loại không hợp lệ",
+            content: `Loại ${subCategory.name} đã bị xoá do vi phạm tiêu chuẩn cộng đồng`,
+            userId: seller.userId
+         });
+      }
       await SubCategory.destroy({
          where: {
             id: subCategory.id

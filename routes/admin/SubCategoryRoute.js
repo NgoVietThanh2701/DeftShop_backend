@@ -13,6 +13,6 @@ router.get('/category/:id', verifyLoginAdmin, getSubCategorybyCate);
 // router.get('/category/:id/:subId', verifyLoginAdmin, getSubCategoryById);
 router.post('/category/:id', verifyLoginAdmin, verifySeller, createSubCategory);
 router.patch('/category/:id/:subId', verifyLoginAdmin, verifySeller, updatedSubCategory);
-router.delete('/category/:id/:subId', verifyLoginAdmin, verifySeller, deleteSubCategory);
+router.delete('/category/:id/:subId', verifyLoginAdmin, deleteSubCategory);
 
 export default router;

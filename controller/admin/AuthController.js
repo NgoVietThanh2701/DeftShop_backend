@@ -18,6 +18,7 @@ export const loginAdmin = async (req, res) => {
             email: req.body.email
          }
       });
+      if (!user) return res.status(401).json({ msg: "email login not found" })
       manager = await Seller.findOne({ where: { userId: user.id } })
       if (!manager)
          return res.status(404).json({ msg: "manager not found!" });

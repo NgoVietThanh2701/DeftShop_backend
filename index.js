@@ -16,6 +16,7 @@ import SellerRoute from './routes/admin/SellerRoute';
 
 // route user
 import AuthUserRoute from "./routes/user/AuthUserRoute";
+import CartRoute from "./routes/user/CartRoute";
 
 //genera route
 import NotifyRoute from './routes/NotifyRoute';
@@ -64,6 +65,7 @@ app.use('/admin', SellerRoute);
 
 // user route
 app.use(AuthUserRoute);
+app.use(CartRoute);
 
 //genera route
 app.use(NotifyRoute);

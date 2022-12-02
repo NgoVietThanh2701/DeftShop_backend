@@ -1,9 +1,9 @@
 import { Sequelize } from "sequelize";
-import FileUpload from "express-fileupload";
 import db from "../config/Database";
 import SubCategory from "./SubCategoryModel";
 import Category from "./CategoryModel";
 import User from "./UserModel";
+import Seller from "./SellerModel";
 
 const { DataTypes } = Sequelize;
 
@@ -71,6 +71,13 @@ const Product = db.define('product', {
          notEmpty: true
       }
    },
+   sellerId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+         notEmpty: true
+      }
+   },
 }, {
    freezeTableName: true
 });
@@ -80,6 +87,9 @@ Product.belongsTo(Category, { foreignKey: 'categoryId' });
 
 SubCategory.hasMany(Product);
 Product.belongsTo(SubCategory, { foreignKey: 'subCategoryId' });
+
+Seller.hasMany(Product);
+Product.belongsTo(Seller, { foreignKey: 'sellerId' });
 
 // (async () => {
 //    await db.sync();

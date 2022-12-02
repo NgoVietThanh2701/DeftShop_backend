@@ -8,7 +8,7 @@ export const getCategories = async (req, res) => {
          attributes: ['id', 'uuid', 'name', 'createdAt'],
          include: [{
             model: Manager,
-            attributes: ['name', 'email', 'role']
+            attributes: ['name', 'email', 'url', 'role']
          }]
       });
       res.status(200).json(categories);
